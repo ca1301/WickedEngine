@@ -1479,6 +1479,46 @@ void Example_ImGuiRenderer::Update(float dt)
 			camera_ang[1] += xDif;
 			if (camera_ang[0] < -89.999f)  camera_ang[0] = -89.999f;
 			if (camera_ang[0] > 89.999f)  camera_ang[0] = 89.999f;
+
+
+
+			float movespeed = CAMERAMOVESPEED;
+
+			if (imgui_io.KeyShift)
+			{
+				movespeed *= 3.0; //Speed up camera.
+			}
+
+			movespeed *= dt;
+
+			if ((ImGui::IsKeyDown(ImGuiKey_W) || ImGui::IsKeyDown(ImGuiKey_UpArrow))) //W UP
+			{
+				camera_pos[0] += movespeed * camera.At.x;
+				camera_pos[1] += movespeed * camera.At.y;
+				camera_pos[2] += movespeed * camera.At.z;
+			}
+			if ((ImGui::IsKeyDown(ImGuiKey_S) || ImGui::IsKeyDown(ImGuiKey_DownArrow))) //S Down
+			{
+				camera_pos[0] += -movespeed * camera.At.x;
+				camera_pos[1] += -movespeed * camera.At.y;
+				camera_pos[2] += -movespeed * camera.At.z;
+			}
+
+			XMFLOAT3 dir_right;
+			XMStoreFloat3(&dir_right, camera.GetRight());
+
+			if ((ImGui::IsKeyDown(ImGuiKey_D) || ImGui::IsKeyDown(ImGuiKey_RightArrow))) //D Right
+			{
+				camera_pos[0] += -movespeed * dir_right.x;
+				camera_pos[1] += -movespeed * dir_right.y;
+				camera_pos[2] += -movespeed * dir_right.z;
+			}
+			if ((ImGui::IsKeyDown(ImGuiKey_A) || ImGui::IsKeyDown(ImGuiKey_LeftArrow))) //A Left
+			{
+				camera_pos[0] += movespeed * dir_right.x;
+				camera_pos[1] += movespeed * dir_right.y;
+				camera_pos[2] += movespeed * dir_right.z;
+			}
 		}
 		else
 		{
@@ -1486,43 +1526,24 @@ void Example_ImGuiRenderer::Update(float dt)
 			wi::input::HidePointer(false);
 		}
 
-		float movespeed = CAMERAMOVESPEED;
-		
-		if (imgui_io.KeyShift)
+
+		if (camControlStart && highlight_entity != INVALID_ENTITY)
 		{
-			movespeed *= 3.0; //Speed up camera.
+			if ((ImGui::IsKeyDown(ImGuiKey_W)))
+			{
+				mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+			}
+			if ((ImGui::IsKeyDown(ImGuiKey_E)))
+			{
+				mCurrentGizmoOperation = ImGuizmo::ROTATE;
+			}
+			if ((ImGui::IsKeyDown(ImGuiKey_R)))
+			{
+				mCurrentGizmoOperation = ImGuizmo::SCALE;
+			}
 		}
 
-		movespeed *= dt;
 
-		if ((ImGui::IsKeyDown(ImGuiKey_W) || ImGui::IsKeyDown(ImGuiKey_UpArrow))) //W UP
-		{
-			camera_pos[0] += movespeed * camera.At.x;
-			camera_pos[1] += movespeed * camera.At.y;
-			camera_pos[2] += movespeed * camera.At.z;
-		}
-		if ((ImGui::IsKeyDown(ImGuiKey_S) || ImGui::IsKeyDown(ImGuiKey_DownArrow))) //S Down
-		{
-			camera_pos[0] += -movespeed * camera.At.x;
-			camera_pos[1] += -movespeed * camera.At.y;
-			camera_pos[2] += -movespeed * camera.At.z;
-		}
-
-		XMFLOAT3 dir_right;
-		XMStoreFloat3(&dir_right, camera.GetRight());
-
-		if ((ImGui::IsKeyDown(ImGuiKey_D) || ImGui::IsKeyDown(ImGuiKey_RightArrow))) //D Right
-		{
-			camera_pos[0] += -movespeed * dir_right.x;
-			camera_pos[1] += -movespeed * dir_right.y;
-			camera_pos[2] += -movespeed * dir_right.z;
-		}
-		if ((ImGui::IsKeyDown(ImGuiKey_A) || ImGui::IsKeyDown(ImGuiKey_LeftArrow))) //A Left
-		{
-			camera_pos[0] += movespeed * dir_right.x;
-			camera_pos[1] += movespeed * dir_right.y;
-			camera_pos[2] += movespeed * dir_right.z;
-		}
 	}
 
 	camera_transform.ClearTransform();
